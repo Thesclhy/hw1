@@ -39,16 +39,15 @@ constexpr GLint NUMBER_OF_TEXTURES = 1, // to be generated, that is
 LEVEL_OF_DETAIL = 0, // mipmap reduction image level
 TEXTURE_BORDER = 0; // this value MUST be zero
 
-// source: https://kiminoiro.jp/
-constexpr char KIMI_SPRITE_FILEPATH[] = "yui.png",
-TOTSUKO_SPRITE_FILEPATH[] = "gitai.png";
+
+constexpr char YUI_FILEPATH[] = "yui.png",
+GITAI_FILEPATH[] = "gitai.png";
 
 constexpr glm::vec3 INIT_YUI_SCALE = glm::vec3(1.5f, 3.0f, 0.0f),
-INIT_GITAI_SCALE = glm::vec3(1.0f, 1.5f, 0.0f),
-INIT_POS_YUI = glm::vec3(0.0f, 0.0f, 0.0f);
-//INIT_POS_GITAI = glm::vec3(-2.0f, 0.0f, 0.0f);
+INIT_GITAI_SCALE = glm::vec3(1.0f, 1.5f, 0.0f);
 
-float GITAI_ROTATION_RADIUS = 3.0f,
+
+float GITAI_ROTATION_RADIUS = 2.0f,
 GITAI_ROTATION_SPEEDRATE = 1.0f;
 
 constexpr float ROT_INCREMENT = 1.0f;
@@ -62,10 +61,14 @@ g_yui_matrix,
 g_gitai_matrix,
 g_projection_matrix;
 
-float g_previous_ticks = 0.0f;
+float g_previous_ticks = 0.0f,
+yui_x = 0.0f,
+yui_y = 0.0f;
 
-glm::vec3 g_rotation_kimi = glm::vec3(0.0f, 0.0f, 0.0f),
-g_rotation_totsuko = glm::vec3(0.0f, 0.0f, 0.0f);
+bool yui_move_right = true;
+
+glm::vec3 g_rotation_yui = glm::vec3(0.0f, 0.0f, 0.0f),
+g_rotation_gitai = glm::vec3(0.0f, 0.0f, 0.0f);
 
 GLuint g_kimi_texture_id,
 g_totsuko_texture_id;
@@ -140,8 +143,8 @@ void initialise()
 
     glClearColor(BG_RED, BG_BLUE, BG_GREEN, BG_OPACITY);
 
-    g_kimi_texture_id = load_texture(KIMI_SPRITE_FILEPATH);
-    g_totsuko_texture_id = load_texture(TOTSUKO_SPRITE_FILEPATH);
+    g_kimi_texture_id = load_texture(YUI_FILEPATH);
+    g_totsuko_texture_id = load_texture(GITAI_FILEPATH);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -168,29 +171,48 @@ void update()
     float delta_time = ticks - g_previous_ticks;
     g_previous_ticks = ticks;
 
+    if (yui_y >= -0.001f || yui_y <= 0.001f) { 
+        if (yui_move_right) {
+            if (yui_x >= 1.0f) {
+                yui_move_right = !yui_move_right;
+            }
+            yui_x += 0.5*delta_time;
+        }
+        else {
+            if (yui_x <= -1.0f) {
+                yui_move_right = !yui_move_right;
+            }
+            yui_x -= 0.5*delta_time;        
+        }
+        yui_y = sin(ticks);
+    }
 
-    float gitai_x = GITAI_ROTATION_RADIUS * sin(ticks * GITAI_ROTATION_SPEEDRATE) + INIT_POS_YUI.x;
-    float gitai_y = GITAI_ROTATION_RADIUS * cos(ticks * GITAI_ROTATION_SPEEDRATE) + INIT_POS_YUI.y;
+    
+
+    glm::vec3 pos_yui = glm::vec3(yui_x, yui_y, 0.0f);
+
+    float gitai_x = GITAI_ROTATION_RADIUS * sin(ticks * GITAI_ROTATION_SPEEDRATE) + pos_yui.x;
+    float gitai_y = GITAI_ROTATION_RADIUS * cos(ticks * GITAI_ROTATION_SPEEDRATE) + pos_yui.y;
     glm::vec3 pos_gitai = glm::vec3(gitai_x, gitai_y, 0.0f);
 
     /* Game logic */
-    g_rotation_kimi.y += ROT_INCREMENT * delta_time;
-    g_rotation_totsuko.y += -1 * ROT_INCREMENT * delta_time;
+    g_rotation_yui.y += ROT_INCREMENT * delta_time;
+    g_rotation_gitai.y += -1 * ROT_INCREMENT * delta_time;
 
     /* Model matrix reset */
     g_yui_matrix = glm::mat4(1.0f);
     g_gitai_matrix = glm::mat4(1.0f);
 
     /* Transformations */
-    g_yui_matrix = glm::translate(g_yui_matrix, INIT_POS_YUI);
+    g_yui_matrix = glm::translate(g_yui_matrix, pos_yui);
     g_yui_matrix = glm::rotate(g_yui_matrix,                 // rotating in respect to kimi
-        g_rotation_kimi.y,            // by the accumulated amt in the y-axis
+        g_rotation_yui.y,            // by the accumulated amt in the y-axis
         glm::vec3(0.0f, 1.0f, 0.0f)); // just in the y-axis
     g_yui_matrix = glm::scale(g_yui_matrix, INIT_YUI_SCALE);
 
     g_gitai_matrix = glm::translate(g_gitai_matrix, pos_gitai);
     g_gitai_matrix = glm::rotate(g_gitai_matrix,
-        g_rotation_totsuko.y,
+        g_rotation_gitai.y,
         glm::vec3(0.0f, 1.0f, 0.0f));
     g_gitai_matrix = glm::scale(g_gitai_matrix, INIT_GITAI_SCALE);
 

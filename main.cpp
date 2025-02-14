@@ -1,5 +1,5 @@
 /**
-* Author: [Your name here]
+* Author: Hanqi Liu
 * Assignment: Simple 2D Scene
 * Date due: 2025-02-15, 11:59pm
 * I pledge that I have completed this assignment without
@@ -117,10 +117,9 @@ GLuint load_texture(const char* filepath)
 
 void initialise()
 {
-    // Initialise video
     SDL_Init(SDL_INIT_VIDEO);
 
-    g_display_window = SDL_CreateWindow("Hello, Textures!",
+    g_display_window = SDL_CreateWindow("Homework 1",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH, WINDOW_HEIGHT,
         SDL_WINDOW_OPENGL);
@@ -182,36 +181,30 @@ void update()
     float delta_time = ticks - g_previous_ticks;
     g_previous_ticks = ticks;
     float scale_factor = 1.0f + 0.1f * sin(ticks * 2.0f); 
-
-
-    if (yui_y >= -0.001f || yui_y <= 0.001f) { 
-        if (yui_move_right) {
-            if (yui_x >= 1.0f) {
-                yui_move_right = !yui_move_right;
-                gitai_scale_change = true;
-            }
-            yui_x += 0.5*delta_time;
+ 
+    if (yui_move_right) {
+        if (yui_x >= 1.0f) {
+            yui_move_right = !yui_move_right;
+            gitai_scale_change = true;
         }
-        else {
-            if (yui_x <= -1.0f) {
-                yui_move_right = !yui_move_right;
-                gitai_scale_change = true;
-            }
-            yui_x -= 0.5*delta_time;        
-        }
-        yui_y = sin(ticks);
+        yui_x += 0.5*delta_time;
     }
-
-    
-
+    else {
+        if (yui_x <= -1.0f) {
+            yui_move_right = !yui_move_right;
+            gitai_scale_change = true;
+        }
+        yui_x -= 0.5*delta_time;        
+    }
+    yui_y = sin(ticks);
     glm::vec3 pos_yui = glm::vec3(yui_x, yui_y, 0.0f);
 
     float gitai_x = GITAI_ROTATION_RADIUS * sin(ticks * GITAI_ROTATION_SPEEDRATE) + pos_yui.x;
     float gitai_y = GITAI_ROTATION_RADIUS * cos(ticks * GITAI_ROTATION_SPEEDRATE) + pos_yui.y;
     glm::vec3 pos_gitai = glm::vec3(gitai_x, gitai_y, 0.0f);
 
-    g_rotation_gitai.y += -1 * ROT_INCREMENT * delta_time;
 
+    g_rotation_gitai.y += -1 * ROT_INCREMENT * delta_time;
     g_yui_matrix = glm::mat4(1.0f);
     g_gitai_matrix = glm::mat4(1.0f);
 

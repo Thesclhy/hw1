@@ -1,3 +1,13 @@
+/**
+* Author: [Your name here]
+* Assignment: Simple 2D Scene
+* Date due: 2025-02-15, 11:59pm
+* I pledge that I have completed this assignment without
+* collaborating with anyone else, in conformance with the
+* NYU School of Engineering Policies and Procedures on
+* Academic Misconduct.
+**/
+
 #define GL_SILENCE_DEPRECATION
 #define STB_IMAGE_IMPLEMENTATION
 #define LOG(argument) std::cout << argument << '\n'
@@ -63,9 +73,11 @@ g_projection_matrix;
 
 float g_previous_ticks = 0.0f,
 yui_x = 0.0f,
-yui_y = 0.0f;
+yui_y = 0.0f,
+counter = 0.0f;
 
-bool yui_move_right = true;
+bool yui_move_right = true,
+gitai_scale_change = false;
 
 glm::vec3 g_rotation_yui = glm::vec3(0.0f, 0.0f, 0.0f),
 g_rotation_gitai = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -166,21 +178,24 @@ void process_input()
 
 void update()
 {
-    /* Delta time calculations */
     float ticks = (float)SDL_GetTicks() / MILLISECONDS_IN_SECOND;
     float delta_time = ticks - g_previous_ticks;
     g_previous_ticks = ticks;
+    float scale_factor = 1.0f + 0.1f * sin(ticks * 2.0f); 
+
 
     if (yui_y >= -0.001f || yui_y <= 0.001f) { 
         if (yui_move_right) {
             if (yui_x >= 1.0f) {
                 yui_move_right = !yui_move_right;
+                gitai_scale_change = true;
             }
             yui_x += 0.5*delta_time;
         }
         else {
             if (yui_x <= -1.0f) {
                 yui_move_right = !yui_move_right;
+                gitai_scale_change = true;
             }
             yui_x -= 0.5*delta_time;        
         }
@@ -195,28 +210,21 @@ void update()
     float gitai_y = GITAI_ROTATION_RADIUS * cos(ticks * GITAI_ROTATION_SPEEDRATE) + pos_yui.y;
     glm::vec3 pos_gitai = glm::vec3(gitai_x, gitai_y, 0.0f);
 
-    /* Game logic */
-    g_rotation_yui.y += ROT_INCREMENT * delta_time;
     g_rotation_gitai.y += -1 * ROT_INCREMENT * delta_time;
 
-    /* Model matrix reset */
     g_yui_matrix = glm::mat4(1.0f);
     g_gitai_matrix = glm::mat4(1.0f);
 
-    /* Transformations */
     g_yui_matrix = glm::translate(g_yui_matrix, pos_yui);
-    g_yui_matrix = glm::rotate(g_yui_matrix,                 // rotating in respect to kimi
-        g_rotation_yui.y,            // by the accumulated amt in the y-axis
-        glm::vec3(0.0f, 1.0f, 0.0f)); // just in the y-axis
     g_yui_matrix = glm::scale(g_yui_matrix, INIT_YUI_SCALE);
 
     g_gitai_matrix = glm::translate(g_gitai_matrix, pos_gitai);
     g_gitai_matrix = glm::rotate(g_gitai_matrix,
         g_rotation_gitai.y,
         glm::vec3(0.0f, 1.0f, 0.0f));
-    g_gitai_matrix = glm::scale(g_gitai_matrix, INIT_GITAI_SCALE);
 
-
+    g_gitai_matrix = glm::scale(g_gitai_matrix, INIT_GITAI_SCALE*scale_factor); 
+    
 }
 
 

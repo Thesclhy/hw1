@@ -1,1 +1,5 @@
-﻿C:\Users\liuha\Documents\CProject\hw1\SDLSimple.vcxproj : error MSB4025: The project file could not be loaded. Could not find file 'C:\Users\liuha\Documents\CProject\hw1\SDLSimple.vcxproj'.
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (SDLSimple.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  main.cpp
+C:\Users\liuha\Documents\CProject\hw1\main.cpp(183,25): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\liuha\Documents\CProject\hw1\main.cpp(190,25): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+  SDLSimple.vcxproj -> C:\Users\liuha\Documents\CProject\hw1\Debug\hw1.exe
